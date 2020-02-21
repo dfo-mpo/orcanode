@@ -11,13 +11,20 @@ wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.
 sudo dpkg -i packages-microsoft-prod.deb
 sudo apt-get update
 sudo apt-get install blobfuse fuse
-sudo mkdir /mnt/blobfusetmp
-sudo chown greg /mnt/blobfusetmp/
+sudo mkdir /mnt/pbsorca_tmp
+sudo mkdir /mnt/pbsorcaweb_tmp
+sudo chown greg /mnt/pbsorca_tmp
+sudo chown greg /mnt/pbsorcaweb_tmp
 sudo mkdir /pbsorca
+sudo mkdir /pbsorcaweb
 sudo chown greg /pbsorca
+sudo chown greg /pbsorcaweb
 export AZURE_STORAGE_ACCOUNT="pbsorca"
 export AZURE_STORAGE_SAS_TOKEN="?sp=racwdl&st=2020-02-21T14:13:41Z&se=2021-11-01T06:01:00Z&sv=2019-02-02&sr=c&sig=asdasdasdasdasdaM%3D"
-blobfuse /pbsorca --container-name=data --tmp-path=/mnt/blobfusetmp
+blobfuse /pbsorca --container-name=data --tmp-path=/mnt/pbsorca_tmp
+
+export AZURE_STORAGE_SAS_TOKEN="?st=2020-02-21T17%3A58%3A18Z&se=2020-12-10T17%3A58%3A00Z&sp=racwdl&sv=2018-03-28&sr=c&sig=msdfsdf3D"
+blobfuse /pbsorcaweb --container-name=$web --tmp-path=/mnt/pbsorcaweb_tmp
 
 
 sudo apt-get install \
