@@ -11,13 +11,13 @@ RAWFS=/pbsorca
 WEBFS=/pbsorcaweb
 TMP=/mnt/orcatmp
 SEGMENT_DURATION=30
-FLAC_DURATION=10
+FLAC_DURATION=30
 LAG_SEGMENTS=6
 LAG=$(( LAG_SEGMENTS*SEGMENT_DURATION ))
 CHOP_M3U8_LINES=$(( LAG_SEGMENTS*(-2) ))
 NODE_NAME=GREGNODE
 SAMPLE_RATE=48000
-STREAM_RATE=48000
+STREAM_RATE=22050
 CHANNELS=2
 AUDIO_HW_ID=0
 
@@ -37,18 +37,9 @@ echo "Node is named $NODE_NAME"
 
 echo "Sampling from $AUDIO_HW_ID at $SAMPLE_RATE Hz..."
 echo "Asking ffmpeg to write $FLAC_DURATION second $SAMPLE_RATE Hz lo-res flac files while streaming in both DASH and HLS..." 
-## Streaming HLS segments and FLAC archive direct to /mnt directories, but live.m3u8 via /tmp
-#nice -n -10
+
+## Streaming HLS segments and FLAC archive
+
 ffmpeg -f pulse -ac 2 -ar $SAMPLE_RATE -thread_queue_size 1024 -i $AUDIO_HW_ID -ac $CHANNELS -ar $SAMPLE_RATE -sample_fmt s32 -acodec flac \
 -f segment -segment_time "00:00:$FLAC_DURATION.00" -strftime 1 "$RAWFS/$NODE_NAME/raw/%Y-%m-%d_%H-%M-%S_$NODE_NAME-$SAMPLE_RATE-$CHANNELS.flac" \
 -f segment -segment_list "$WEBFS/$NODE_NAME/streaming/live.m3u8" -segment_wrap 10 -segment_list_flags +live -segment_time $SEGMENT_DURATION -segment_format mpegts -ar $STREAM_RATE -ac $CHANNELS -acodec aac "$WEBFS/$NODE_NAME/streaming/live%03d.ts"
-
-#sleep $LAG
-
-#while true; do
-    #echo "In while loop copying aged m3u8 for $NODE_NAME with lag of $LAG_SEGMENTS segments, or $LAG seconds..."
-    #head -n $CHOP_M3U8_LINES "$WEBFS/$NODE_NAME/streaming/$timestamp/live.m3u8" > $WEBFS/$NODE_NAME/streaming/$timestamp/live.m3u8
-    #cp $TMP/$NODE_NAME/hls/$timestamp/live.m3u8 $RAWFS/$NODE_NAME/hls/$timestamp/live.m3u8
-    #sleep $SEGMENT_DURATION
-    # find $TMP/$NODE_NAME/hls/$timestamp/*.ts -mmin +59 -type f -exec rm -fv {} \;
-#done
