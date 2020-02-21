@@ -8,6 +8,7 @@
 # folder at $TMP with read/write for current user
 
 RAWFS=/pbsorca
+WEBFS=/pbsorcaweb
 TMP=/mnt/orcatmp
 SEGMENT_DURATION=30
 FLAC_DURATION=10
@@ -24,11 +25,9 @@ AUDIO_HW_ID=0
 timestamp=$(date +%s)
 
 #### Set up local output directories
-mkdir -p $TMP/$NODENAME
 mkdir -p $RAWFS/$NODE_NAME
 mkdir -p $RAWFS/$NODE_NAME/raw
 mkdir -p $WEBFS/$NODE_NAME/streaming
-mkdir -p $WEBFS/$NODE_NAME/streaming/$timestamp
 
 # Output timestamp for this (latest) stream
 echo $timestamp > $RAWFS/$NODE_NAME/last-started.txt
@@ -42,13 +41,14 @@ echo "Asking ffmpeg to write $FLAC_DURATION second $SAMPLE_RATE Hz lo-res flac f
 #nice -n -10
 ffmpeg -f pulse -ac 2 -ar $SAMPLE_RATE -thread_queue_size 1024 -i $AUDIO_HW_ID -ac $CHANNELS -ar $SAMPLE_RATE -sample_fmt s32 -acodec flac \
 -f segment -segment_time "00:00:$FLAC_DURATION.00" -strftime 1 "$RAWFS/$NODE_NAME/raw/%Y-%m-%d_%H-%M-%S_$NODE_NAME-$SAMPLE_RATE-$CHANNELS.flac" \
--f segment -segment_list "$WEBFS/$NODE_NAME/streaming/$timestamp/live.m3u8" -segment_list_flags +live -segment_time $SEGMENT_DURATION -segment_format mpegts -ar $STREAM_RATE -ac $CHANNELS -acodec aac "$WEBFS/$NODE_NAME/streaming/$timestamp/live%03d.ts"
+-f segment -segment_list "$WEBFS/$NODE_NAME/streaming/live.m3u8" -segment_wrap 10 -segment_list_flags +live -segment_time $SEGMENT_DURATION -segment_format mpegts -ar $STREAM_RATE -ac $CHANNELS -acodec aac "$WEBFS/$NODE_NAME/streaming/live%03d.ts"
 
 #sleep $LAG
 
 #while true; do
-    echo "In while loop copying aged m3u8 for $NODE_NAME with lag of $LAG_SEGMENTS segments, or $LAG seconds..."
-    head -n $CHOP_M3U8_LINES $WEBFS/$NODE_NAME/streaming/$timestamp/live.m3u8 > $WEBFS/$NODE_NAME/streaming/$timestamp/live.m3u8
+    #echo "In while loop copying aged m3u8 for $NODE_NAME with lag of $LAG_SEGMENTS segments, or $LAG seconds..."
+    #head -n $CHOP_M3U8_LINES "$WEBFS/$NODE_NAME/streaming/$timestamp/live.m3u8" > $WEBFS/$NODE_NAME/streaming/$timestamp/live.m3u8
     #cp $TMP/$NODE_NAME/hls/$timestamp/live.m3u8 $RAWFS/$NODE_NAME/hls/$timestamp/live.m3u8
     #sleep $SEGMENT_DURATION
+    # find $TMP/$NODE_NAME/hls/$timestamp/*.ts -mmin +59 -type f -exec rm -fv {} \;
 #done
