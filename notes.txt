@@ -1,0 +1,36 @@
+# AzureVM?
+# sudo apt install pulseaudio pulseaudio-module-jack
+# sudo apt-get install moc moc-ffmpeg-plugin
+# wget https://play.podtrac.com/npr-510289/edge1.pod.npr.org/anon.npr-podcasts/podcast/npr/pmoney/2020/02/20200219_pmoney_pmpod973-d32d5b28-88f3-4f7b-b1ee-8aaa1c13531b.mp3
+# pacmd load-module module-null-source source_name=MySource
+# pacmd update-source-proplist MySource device.description=MySource
+# pacmd list-sources
+
+
+wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+sudo apt-get update
+sudo apt-get install blobfuse fuse
+sudo mkdir /mnt/blobfusetmp
+sudo chown greg /mnt/blobfusetmp/
+sudo mkdir /pbsorca
+sudo chown greg /pbsorca
+export AZURE_STORAGE_ACCOUNT="pbsorca"
+export AZURE_STORAGE_SAS_TOKEN="?sp=racwdl&st=2020-02-21T14:13:41Z&se=2021-11-01T06:01:00Z&sv=2019-02-02&sr=c&sig=asdasdasdasdasdaM%3D"
+blobfuse /pbsorca --container-name=data --tmp-path=/mnt/blobfusetmp
+
+
+sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    software-properties-common
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+
+sudo apt-get update && sudo apt install docker-ce
