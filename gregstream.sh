@@ -41,5 +41,5 @@ echo "Asking ffmpeg to write $FLAC_DURATION second $SAMPLE_RATE Hz lo-res flac f
 ## Streaming HLS segments and FLAC archive
 
 ffmpeg -f pulse -ac 2 -ar $SAMPLE_RATE -thread_queue_size 1024 -i $AUDIO_HW_ID -ac $CHANNELS -ar $SAMPLE_RATE -sample_fmt s32 -acodec flac \
--f segment -segment_time "00:00:$FLAC_DURATION.00" -strftime 1 "$RAWFS/$NODE_NAME/raw/%Y-%m-%d_%H-%M-%S_$NODE_NAME-$SAMPLE_RATE-$CHANNELS.flac" \
+-f segment -segment_time "00:00:$FLAC_DURATION.00" -strftime 1 "$RAWFS/$NODE_NAME/raw/%Y%m%d_%H%M%S_$NODE_NAME.flac" \
 -f segment -segment_list "$WEBFS/$NODE_NAME/streaming/live.m3u8" -segment_wrap 10 -segment_list_flags +live -segment_time $SEGMENT_DURATION -segment_format mpegts -ar $STREAM_RATE -ac $CHANNELS -acodec aac "$WEBFS/$NODE_NAME/streaming/live%03d.ts"
